@@ -8,6 +8,28 @@ using CppAD::AD;
 
 // Use MPC to solve for 10 timesteps with each time step
 // separated by 0.1 seconds.
+// The product of N*dt determines the prediction horizon (T)
+// for the MPC.  If the prediction horizon is too large, then
+// control may fail because we are predicting too far into 
+// the future when the real world may be chaning much more reapidly.
+//
+// If the prediction horizon is too small, then we'll use too few
+// points from the reference trajectory and we'll produce controls 
+// that are very sensitve and reactive to short-term deviations in
+// the reference trajectory.
+//
+// Furthermore, a choice for dt that is too large, will render our Kinematic
+// model obsolete.  Our kinematic model is most accurate for short timesteps.
+//
+// When I tried N=20 and dt=0.1 which is equivalent to a prediction horizon
+// of 2 seconds, the car was unable to complete a lap around the track becuase
+// the prediction horizon was too long.
+//
+// In contrast, when I tried N=5 and dt=0.1 the car also failed to complete
+// a lap around the track since the prediction horizon was too small.
+//
+// A working value was N=10 and dt=0.1 which corresponds to a prediction horizon
+// of 1 second.
 size_t N = 10;
 double dt = 0.1;
 
