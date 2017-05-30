@@ -178,9 +178,21 @@ public:
             AD<double> cte0 = vars[cte_start + i];
             AD<double> epsi0 = vars[epsi_start + i];
 
-            // Only consider the actuation at time t.
-            AD<double> delta0 = vars[delta_start + i];
-            AD<double> a0 = vars[a_start + i];
+            // To model the 100 ms delay in our system, we use the fact that our
+            // MPC dt=100 ms and use the actuator input from time t-1 to update the 
+            // state at time t+1.  
+            AD<double> delta0;
+            AD<double> a0;
+            if (i == 0) {
+                delta0 = 0;
+                a0 = 0;
+            } else {
+                // Because of system delay, the actuator inputs from time t-1 are used
+                // to update the state at time t+1 which model a 100 ms delay in the arrival
+                // of our actuator inputs to the system.
+                delta0 = vars[delta_start + i - 1];
+                a0 = vars[a_start + i - 1];
+            }
 
             // Evaluate 3rd order polynomial at state at time t.
             AD<double> f0 = coeffs[0] + coeffs[1] * x0 + coeffs[2] * CppAD::pow(x0, 2) + coeffs[3] * CppAD::pow(x0, 3);
